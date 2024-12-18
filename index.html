@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Tarefas</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts para uma tipografia moderna -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SortableJS para Drag and Drop (Atributos integrity e crossorigin removidos) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <i class="fas fa-tasks logo-icon"></i>
+                <h1>Gerenciador de Tarefas</h1>
+                <button id="theme-toggle-button" title="Mudar Tema">
+                    <i class="fas fa-sun" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Notificações -->
+        <div id="notification-container"></div>
+
+        <!-- Sistema de Abas -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="add-task">Adicionar Tarefa</button>
+            <button class="tab-button" data-tab="view-tasks">Visualizar Tarefas</button>
+            <button class="tab-button" data-tab="completed-tasks">Concluídas</button>
+        </div>
+
+        <!-- Conteúdo das Abas -->
+        <div class="tab-content">
+            <!-- Aba de Adicionar Tarefa -->
+            <div class="tab-pane active" id="add-task">
+                <div class="input-section">
+                    <input type="text" id="task-title-input" placeholder="Título da Tarefa...">
+                    <textarea id="task-description-input" placeholder="Descrição da Tarefa..."></textarea>
+                    <select id="category-select">
+                        <option value="Geral">Geral</option>
+                        <option value="Trabalho">Trabalho</option>
+                        <option value="Pessoal">Pessoal</option>
+                        <option value="Urgente">Urgente</option>
+                    </select>
+                    <select id="priority-select">
+                        <option value="Baixa">Baixa</option>
+                        <option value="Média">Média</option>
+                        <option value="Alta">Alta</option>
+                    </select>
+                    <input type="date" id="due-date-input" placeholder="Data de Vencimento">
+                    <button id="add-task-button"><i class="fas fa-plus"></i> Adicionar</button>
+                </div>
+                <div class="subtask-section">
+                    <h3>Subtarefas</h3>
+                    <div class="subtask-input">
+                        <input type="text" id="subtask-input" placeholder="Adicionar sub-tarefa...">
+                        <button id="add-subtask-button"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <ul id="subtask-list"></ul>
+                </div>
+                <div class="attachment-section">
+                    <h3>Anexos</h3>
+                    <div class="attachment-buttons">
+                        <label for="attachment-input" class="custom-file-upload">
+                            <i class="fas fa-paperclip"></i> Escolher Arquivo
+                        </label>
+                        <input type="file" id="attachment-input" multiple hidden>
+                        <input type="url" id="attachment-link-input" placeholder="Adicionar link de anexo...">
+                        <button id="add-attachment-button"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <ul id="attachment-list"></ul>
+                </div>
+            </div>
+
+            <!-- Aba de Visualizar Tarefas -->
+            <div class="tab-pane" id="view-tasks">
+                <div class="filters">
+                    <input type="text" id="search-input" placeholder="Buscar tarefas...">
+                    <select id="filter-category">
+                        <option value="All">Todas as Categorias</option>
+                        <option value="Geral">Geral</option>
+                        <option value="Trabalho">Trabalho</option>
+                        <option value="Pessoal">Pessoal</option>
+                        <option value="Urgente">Urgente</option>
+                    </select>
+                    <select id="filter-status">
+                        <option value="All">Todos os Status</option>
+                        <option value="Completed">Concluídas</option>
+                        <option value="Pending">Pendentes</option>
+                    </select>
+                    <select id="filter-priority">
+                        <option value="All">Todas as Prioridades</option>
+                        <option value="Baixa">Baixa</option>
+                        <option value="Média">Média</option>
+                        <option value="Alta">Alta</option>
+                    </select>
+                </div>
+
+                <!-- Estrutura Kanban -->
+                <div class="kanban-board">
+                    <div class="kanban-column" data-priority="Alta">
+                        <h2>Alta Prioridade</h2>
+                        <ul class="task-list" id="high-priority-list"></ul>
+                    </div>
+                    <div class="kanban-column" data-priority="Média">
+                        <h2>Média Prioridade</h2>
+                        <ul class="task-list" id="medium-priority-list"></ul>
+                    </div>
+                    <div class="kanban-column" data-priority="Baixa">
+                        <h2>Baixa Prioridade</h2>
+                        <ul class="task-list" id="low-priority-list"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aba de Tarefas Concluídas -->
+            <div class="tab-pane" id="completed-tasks">
+                <h2>Tarefas Concluídas</h2>
+                <ul class="task-list" id="completed-tasks-list"></ul>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2024 Gerenciador de Tarefas. Feito por Daniel Alves.</p>
+        </footer>
+    </div>
+
+    <!-- Modal para editar tarefa -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Editar Tarefa</h2>
+            <input type="text" id="edit-task-title-input" placeholder="Título da Tarefa...">
+            <textarea id="edit-task-description-input" placeholder="Descrição da Tarefa..."></textarea>
+            <select id="edit-category-select">
+                <option value="Geral">Geral</option>
+                <option value="Trabalho">Trabalho</option>
+                <option value="Pessoal">Pessoal</option>
+                <option value="Urgente">Urgente</option>
+            </select>
+            <select id="edit-priority-select">
+                <option value="Baixa">Baixa</option>
+                <option value="Média">Média</option>
+                <option value="Alta">Alta</option>
+            </select>
+            <input type="date" id="edit-due-date-input" placeholder="Data de Vencimento">
+            <button id="save-edit-button">Salvar</button>
+        </div>
+    </div>
+
+    <!-- Modal para visualizar anexos -->
+    <div id="attachments-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Anexos</h2>
+            <ul id="modal-attachment-list"></ul>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
